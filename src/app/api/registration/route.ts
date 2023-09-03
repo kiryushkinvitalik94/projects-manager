@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "../db";
+import { Client } from "@vercel/postgres";
 import { hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-export async function POST(request: NextRequest) {
+export default async function handler(request: NextRequest) {
+  if (request.method !== "POST") {
+    return NextResponse.json(
+      { message: "Method Not Allowed" },
+      { status: 405 }
+    );
+  }
+
   const { username, email, password } = await request.json();
 
   if (!username || !email || !password) {
@@ -15,46 +22,50 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const db = await connectDB();
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
 
   try {
-    // Check if the email is already registered
-    const [existingUsers] = await db.query(
-      "SELECT * FROM users WHERE email = ?",
+    await client.connect();
+
+    const existingUsers = await client.query(
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
-    if (Array.isArray(existingUsers) && existingUsers.length > 0) {
+    if (existingUsers.rowCount > 0) {
       return NextResponse.json(
         { message: "Email is already registered" },
         { status: 400 }
       );
     }
 
-    // Hash the password before storing it in the database
     const hashedPassword = await hash(password, 10);
 
-    // Insert the new user into the database
-    const result = await db.query(
-      "INSERT INTO users (username, email, password, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
+    const result = await client.query(
+      "INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id",
       [username, email, hashedPassword]
     );
 
-    if (result[0]["affectedRows"] > 0) {
-      const [newUser] = await db.query(
-        "SELECT id, username, email FROM users WHERE id = ?",
-        [result[0]["insertId"]]
-      );
-      if (Array.isArray(newUser) && newUser.length > 0) {
-        const token = sign({ userId: newUser[0]["id"], email }, SECRET_KEY, {
-          expiresIn: "24h",
-        });
+    if (result.rowCount > 0) {
+      const userId = result.rows[0].id;
 
-        return NextResponse.json(
-          { message: "User registered successfully", user: newUser[0], token },
-          { status: 201 }
-        );
-      }
+      const token = sign({ userId, email }, SECRET_KEY, {
+        expiresIn: "24h",
+      });
+
+      return NextResponse.json(
+        {
+          message: "User registered successfully",
+          user: { id: userId, username, email },
+          token,
+        },
+        { status: 201 }
+      );
     } else {
       return NextResponse.json(
         { message: "Failed to register user" },
@@ -68,6 +79,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    db.end(); // Close the database connection
+    await client.end();
   }
 }
