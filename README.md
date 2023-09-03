@@ -1,8 +1,8 @@
 # Project Management App
 
-![GitHub](https://img.shields.io/github/license/your-username/project-management-app)
+![GitHub](https://github.com/kiryushkinvitalik94/projects-manager.git)
 
-The Project Management App is a web application designed for managing projects and tasks. It provides an intuitive interface for creating, tracking, and managing projects, as well as assigning tasks to users.
+The Project Manager App is a web application designed for managing projects and tasks. It provides an intuitive interface for creating, tracking, and managing projects, as well as assigning tasks to users.
 
 ## Features
 
@@ -25,7 +25,7 @@ The Project Management App is a web application designed for managing projects a
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/project-management-app.git
+   git clone https://github.com/kiryushkinvitalik94/projects-manager.git
 
    ```
 
