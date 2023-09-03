@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { verify, TokenExpiredError } from "jsonwebtoken";
-import { connectDB } from "../db";
+import { sql } from "@vercel/postgres";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -25,14 +25,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
-    const db = await connectDB();
-
-    const [user] = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
-      [decodedToken.userId]
-    );
-
-    db.end();
+    const user =
+      await sql`SELECT id, username, email FROM users WHERE id = ${decodedToken.userId}`;
 
     if (!user) {
       return NextResponse.json(

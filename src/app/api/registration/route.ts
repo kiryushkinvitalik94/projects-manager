@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     const existingUsers = sql`SELECT * FROM users WHERE email = ${email}`;
 
-    if (existingUsers["rowCount"] > 0) {
+    if (existingUsers) {
       return NextResponse.json(
         { message: "Email is already registered" },
         { status: 400 }
