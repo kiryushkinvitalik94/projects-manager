@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
 
   try {
     // Check if the user exists
-    const user =
+    const result =
       await sql`SELECT username, id, email, created_at, updated_at, password FROM users WHERE email = ${email}`;
 
-    console.error(user, "user");
-
-    if (user) {
+    if (result["rowCount"] > 0) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
+
+    const user = result["rows"];
 
     const storedPassword = user["password"];
 
