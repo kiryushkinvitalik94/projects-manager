@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Client } from "@vercel/postgres";
+import { Client, sql } from "@vercel/postgres";
 import { hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-export default async function handler(request: NextRequest) {
-  if (request.method !== "POST") {
-    return NextResponse.json(
-      { message: "Method Not Allowed" },
-      { status: 405 }
-    );
-  }
-
+export async function POST(request: NextRequest) {
   const { username, email, password } = await request.json();
 
   if (!username || !email || !password) {
@@ -32,12 +25,9 @@ export default async function handler(request: NextRequest) {
   try {
     await client.connect();
 
-    const existingUsers = await client.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const existingUsers = sql`SELECT * FROM users WHERE email = ${email}`;
 
-    if (existingUsers.rowCount > 0) {
+    if (existingUsers["rowCount"] > 0) {
       return NextResponse.json(
         { message: "Email is already registered" },
         { status: 400 }
@@ -46,10 +36,8 @@ export default async function handler(request: NextRequest) {
 
     const hashedPassword = await hash(password, 10);
 
-    const result = await client.query(
-      "INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id",
-      [username, email, hashedPassword]
-    );
+    const result =
+      await sql`INSERT INTO users (username, email, password, created_at, updated_at) VALUES (${username}, ${email}, ${hashedPassword}, NOW(), NOW()) RETURNING id`;
 
     if (result.rowCount > 0) {
       const userId = result.rows[0].id;
