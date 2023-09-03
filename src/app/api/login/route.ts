@@ -20,6 +20,8 @@ export async function POST(request: NextRequest) {
     const user =
       await sql`SELECT username, id, email, created_at, updated_at, password FROM users WHERE email = ${email}`;
 
+    console.error(user, "user");
+
     if (user) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
