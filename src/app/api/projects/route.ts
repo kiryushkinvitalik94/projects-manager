@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { verify } from "jsonwebtoken";
-import { connectDB } from "../db";
+import { sql } from "@vercel/postgres";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -21,8 +21,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
-    const db = await connectDB();
-
     const { name, description } = await request.json();
 
     if (!name || !description) {
@@ -32,16 +30,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const createProjectQuery =
-      "INSERT INTO projects (user_id, name, description) VALUES (?, ?, ?)";
+    const result =
+      await sql`INSERT INTO projects (user_id = ${decodedToken.userId}, name = ${name}, description = ${description}`;
 
-    const result = await db.query(createProjectQuery, [
-      decodedToken.userId,
-      name,
-      description,
-    ]);
-
-    if (!result) {
+    if (result.rowCount > 0) {
       return NextResponse.json(
         { message: "Failed to create a project" },
         { status: 500 }
@@ -50,13 +42,11 @@ export async function POST(request: NextRequest) {
 
     const newProjectId = result[0]["insertId"];
 
-    const getNewProjectQuery = "SELECT * FROM projects WHERE id = ?";
-    const newProject = await db.query(getNewProjectQuery, [newProjectId]);
-
-    db.end();
+    const newProject =
+      await sql`SELECT * FROM projects WHERE id = ${newProjectId}`;
 
     return NextResponse.json(
-      { message: "Project created successfully", project: newProject[0][0] },
+      { message: "Project created successfully", project: newProject },
       { status: 201 }
     );
   } catch (error) {
@@ -84,15 +74,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
-    const db = await connectDB();
+    const projects =
+      await sql`SELECT * FROM projects WHERE user_id = ${decodedToken.userId}`;
 
-    const getProjectsQuery = "SELECT * FROM projects WHERE user_id = ?";
-
-    const projects = await db.query(getProjectsQuery, [decodedToken.userId]);
-
-    db.end();
-
-    return NextResponse.json({ projects: projects[0] }, { status: 200 });
+    return NextResponse.json({ projects: projects }, { status: 200 });
   } catch (error) {
     console.error("Error while getting projects:", error);
     return NextResponse.json(

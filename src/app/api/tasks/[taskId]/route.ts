@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { verify } from "jsonwebtoken";
-import { connectDB } from "../../db";
+import { sql } from "@vercel/postgres";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -38,8 +38,6 @@ export async function PUT(
       );
     }
 
-    const db = await connectDB();
-
     const checkTaskOwnershipQuery = `
       SELECT tasks.id
       FROM tasks
@@ -47,10 +45,10 @@ export async function PUT(
       WHERE tasks.id = ? AND projects.user_id = ?
     `;
 
-    const [taskOwnership] = await db.query(checkTaskOwnershipQuery, [
-      taskId,
-      decodedToken.userId,
-    ]);
+    const taskOwnership = await sql`SELECT tasks.id
+    FROM tasks
+    INNER JOIN projects ON tasks.project_id = projects.id
+    WHERE tasks.id = ${taskId} AND projects.user_id = ${decodedToken.userId}`;
 
     if (!taskOwnership || taskOwnership["length"] === 0) {
       return NextResponse.json(
@@ -59,18 +57,9 @@ export async function PUT(
       );
     }
 
-    const updateTaskQuery = `
-      UPDATE tasks
-      SET title = ?, description = ?, status = ?
-      WHERE id = ?
-    `;
-
-    const result = await db.query(updateTaskQuery, [
-      title,
-      description,
-      status,
-      taskId,
-    ]);
+    const result = await sql`UPDATE tasks
+    SET title = ${title}, description = ${description}, status = ${status}
+    WHERE id = ${taskId}`;
 
     const getUpdatedTaskQuery = `
       SELECT *
@@ -78,9 +67,9 @@ export async function PUT(
       WHERE id = ?
     `;
 
-    const [updatedTask] = await db.query(getUpdatedTaskQuery, [taskId]);
-
-    db.end();
+    const updatedTask = await sql`SELECT *
+      FROM tasks
+      WHERE id = ${taskId}`;
 
     if (result["affectedRows"] === 0) {
       return NextResponse.json(
@@ -90,7 +79,7 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { message: "Task updated successfully", task: updatedTask[0] },
+      { message: "Task updated successfully", task: updatedTask },
       { status: 200 }
     );
   } catch (error) {
@@ -126,19 +115,9 @@ export async function DELETE(
       return NextResponse.json({ message: "Invalid task ID" }, { status: 400 });
     }
 
-    const db = await connectDB();
-
-    const checkTaskOwnershipQuery = `
-      SELECT tasks.id
-      FROM tasks
-      INNER JOIN projects ON tasks.project_id = projects.id
-      WHERE tasks.id = ? AND projects.user_id = ?
-    `;
-
-    const [taskOwnership] = await db.query(checkTaskOwnershipQuery, [
-      taskId,
-      decodedToken.userId,
-    ]);
+    const taskOwnership = await sql`SELECT tasks.id FROM tasks
+    INNER JOIN projects ON tasks.project_id = projects.id
+    WHERE tasks.id = ${taskId} AND projects.user_id = ${decodedToken.userId}`;
 
     if (!taskOwnership || taskOwnership["length"] === 0) {
       return NextResponse.json(
@@ -147,14 +126,7 @@ export async function DELETE(
       );
     }
 
-    const deleteTaskQuery = `
-      DELETE FROM tasks
-      WHERE id = ?
-    `;
-
-    const result = await db.query(deleteTaskQuery, [taskId]);
-
-    db.end();
+    const result = await sql`DELETE FROM tasks WHERE id = ${taskId}`;
 
     if (result["affectedRows"] === 0) {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "../db";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
+import { sql } from "@vercel/postgres";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -15,20 +15,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const db = await connectDB();
-
   try {
     // Check if the user exists
-    const [user] = await db.query(
-      "SELECT username, id, email, created_at, updated_at, password FROM users WHERE email = ?",
-      [email]
-    );
+    const user =
+      await sql`SELECT username, id, email, created_at, updated_at, password FROM users WHERE email = ${email}`;
 
-    if (!Array.isArray(user) || user.length === 0) {
+    if (user) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
 
-    const storedPassword = user[0]["password"];
+    const storedPassword = user["password"];
 
     // Compare the provided password with the stored password
     const passwordMatch = await compare(password, storedPassword);
@@ -42,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Generate and sign a JWT token
     const token = sign(
-      { userId: user[0]["id"], email },
+      { userId: user["id"], email },
       SECRET_KEY, // Use an environment variable for the secret
       {
         expiresIn: "24h",
@@ -53,10 +49,10 @@ export async function POST(request: NextRequest) {
       {
         message: "Login successful",
         user: {
-          name: user[0]["username"],
-          email: user[0]["email"],
-          created_at: user[0]["created_at"],
-          updated_at: user[0]["updated_at"],
+          name: user["username"],
+          email: user["email"],
+          created_at: user["created_at"],
+          updated_at: user["updated_at"],
         },
         token,
       },
@@ -68,7 +64,5 @@ export async function POST(request: NextRequest) {
       { message: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    db.end(); // Close the database connection
   }
 }

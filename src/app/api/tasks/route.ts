@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { verify } from "jsonwebtoken";
-import { connectDB } from "../db";
+import { sql } from "@vercel/postgres";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -30,18 +30,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = await connectDB();
-
     const createTaskQuery =
       "INSERT INTO tasks (user_id, project_id, title, description, status) VALUES (?, ?, ?, ?, ?)";
 
-    const result = await db.query(createTaskQuery, [
-      decodedToken.userId,
-      project_id,
-      title,
-      description,
-      status,
-    ]);
+    const result =
+      await sql`INSERT INTO tasks (user_id=${decodedToken.userId}, project_id=${project_id}, title=${title}, description=${description}, status=${status}) VALUES`;
 
     if (!result) {
       return NextResponse.json(
@@ -52,13 +45,10 @@ export async function POST(request: NextRequest) {
 
     const newTaskId = result[0]["insertId"];
 
-    const getNewTaskQuery = "SELECT * FROM tasks WHERE id = ?";
-    const newTask = await db.query(getNewTaskQuery, [newTaskId]);
-
-    db.end();
+    const newTask = await sql`SELECT * FROM tasks WHERE id = ${newTaskId}`;
 
     return NextResponse.json(
-      { message: "Task created successfully", task: newTask[0][0] },
+      { message: "Task created successfully", task: newTask },
       { status: 201 }
     );
   } catch (error) {
