@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Client, sql } from "@vercel/postgres";
+import { sql } from "@vercel/postgres";
 import { hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
@@ -15,16 +15,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-
   try {
-    await client.connect();
-
     const existingUsers = sql`SELECT * FROM users WHERE email = ${email}`;
 
     if (existingUsers["rowCount"] > 0) {
@@ -66,7 +57,5 @@ export async function POST(request: NextRequest) {
       { message: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await client.end();
   }
 }
