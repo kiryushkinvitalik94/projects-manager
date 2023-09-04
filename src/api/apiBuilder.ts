@@ -60,7 +60,7 @@ export default class ApiBuilder implements Api {
         }
 
         const inputString = path;
-        const desiredPath = inputString.substring(0, path.indexOf("/", 1));
+        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
 
         for (const key of this.cache.keys()) {
           console.log(key, "key", desiredPath, key.includes(desiredPath));
