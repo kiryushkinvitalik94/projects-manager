@@ -30,11 +30,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const createTaskQuery =
-      "INSERT INTO tasks (user_id, project_id, title, description, status) VALUES (?, ?, ?, ?, ?)";
-
     const result =
-      await sql`INSERT INTO tasks (user_id=${decodedToken.userId}, project_id=${project_id}, title=${title}, description=${description}, status=${status}) VALUES`;
+      await sql`INSERT INTO tasks (user_id, project_id, title, description, status)
+      VALUES (${decodedToken.userId}, ${project_id}, ${title}, ${description}, ${status})
+      `;
 
     if (!result) {
       return NextResponse.json(

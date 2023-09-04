@@ -30,8 +30,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result =
-      await sql`INSERT INTO projects (user_id = ${decodedToken.userId}, name = ${name}, description = ${description}`;
+    const result = await sql`INSERT INTO projects (user_id, name, description)
+      VALUES (${decodedToken.userId}, ${name}, ${description})
+      RETURNING id;`;
+
+    console.error(result, "created project result");
 
     if (result.rowCount > 0) {
       return NextResponse.json(
