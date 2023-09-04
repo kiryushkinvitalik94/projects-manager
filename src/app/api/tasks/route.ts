@@ -44,10 +44,11 @@ export async function POST(request: NextRequest) {
 
     const newTaskId = result.rows[0].id;
 
-    const newTask = await sql`SELECT * FROM tasks WHERE id = ${newTaskId}`;
+    const getNewTaskResult =
+      await sql`SELECT * FROM tasks WHERE id = ${newTaskId}`;
 
     return NextResponse.json(
-      { message: "Task created successfully", task: newTask },
+      { message: "Task created successfully", task: getNewTaskResult.rows[0] },
       { status: 201 }
     );
   } catch (error) {

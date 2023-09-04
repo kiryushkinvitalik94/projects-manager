@@ -32,17 +32,19 @@ export async function GET(
       );
     }
 
-    const projectData =
+    const getProjectResult =
       await sql`SELECT * FROM projects WHERE id = ${projectId}`;
+    let projectData = {};
 
-    if (projectData) {
+    if (getProjectResult.rowCount > 0) {
+      projectData = getProjectResult.rows[0];
       projectData["tasks"] = [];
 
-      const tasksData =
+      const getTasksResult =
         await sql`SELECT * FROM tasks WHERE project_id = ${projectId}`;
 
-      if (tasksData && tasksData["length"] > 0) {
-        projectData["tasks"] = tasksData;
+      if (getTasksResult.rowCount > 0 && getTasksResult.rows.length > 0) {
+        projectData["tasks"] = getTasksResult.rows;
       }
     } else {
       return NextResponse.json(
@@ -116,11 +118,14 @@ export async function PUT(
       );
     }
 
-    const updatedProject =
+    const getUpdatedProjectResult =
       await sql`SELECT * FROM projects WHERE id = ${projectId}`;
 
     return NextResponse.json(
-      { message: "Project updated successfully", project: updatedProject[0] },
+      {
+        message: "Project updated successfully",
+        project: getUpdatedProjectResult.rows[0],
+      },
       { status: 200 }
     );
   } catch (error) {

@@ -45,11 +45,14 @@ export async function POST(request: NextRequest) {
 
     const newProjectId = result.rows[0].id;
 
-    const newProject =
+    const getProjectResult =
       await sql`SELECT * FROM projects WHERE id = ${newProjectId}`;
 
     return NextResponse.json(
-      { message: "Project created successfully", project: newProject },
+      {
+        message: "Project created successfully",
+        project: getProjectResult.rows[0],
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -77,10 +80,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
-    const projects =
+    const getProjectResult =
       await sql`SELECT * FROM projects WHERE user_id = ${decodedToken.userId}`;
 
-    return NextResponse.json({ projects: projects }, { status: 200 });
+    return NextResponse.json(
+      { projects: getProjectResult.rows },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error while getting projects:", error);
     return NextResponse.json(
