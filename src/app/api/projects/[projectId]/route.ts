@@ -164,18 +164,7 @@ export async function DELETE(
       );
     }
 
-    const resultdeletedTasks =
-      await sql`DELETE FROM tasks WHERE project_id = ${projectId} AND user_id = ${decodedToken.userId}`;
-
-    if (resultdeletedTasks.rowCount === 0) {
-      return NextResponse.json(
-        {
-          message:
-            "Project not found or you don't have permission to delete it",
-        },
-        { status: 404 }
-      );
-    }
+    await sql`DELETE FROM tasks WHERE project_id = ${projectId} AND user_id = ${decodedToken.userId}`;
 
     await sql`DELETE FROM projects WHERE id = ${projectId} AND user_id = ${decodedToken.userId}`;
 
