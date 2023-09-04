@@ -61,12 +61,6 @@ export async function PUT(
     SET title = ${title}, description = ${description}, status = ${status}
     WHERE id = ${taskId}`;
 
-    const getUpdatedTaskQuery = `
-      SELECT *
-      FROM tasks
-      WHERE id = ?
-    `;
-
     const updatedTask = await sql`SELECT *
       FROM tasks
       WHERE id = ${taskId}`;

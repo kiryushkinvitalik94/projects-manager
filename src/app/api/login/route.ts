@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
     // Check if the user exists
     const result =
       await sql`SELECT username, id, email, created_at, updated_at, password FROM users WHERE email = ${email}`;
-    console.error(result["rowCount"], result["rowCount"], result);
-    if (result["rowCount"] > 0) {
+
+    if (result["rowCount"] === 0) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
 

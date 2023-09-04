@@ -25,18 +25,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
-    const user =
+    const result =
       await sql`SELECT id, username, email FROM users WHERE id = ${decodedToken.userId}`;
 
-    if (!user) {
+    if (result["rowCount"] === 0) {
       return NextResponse.json(
         { message: "User not found in the database" },
         { status: 401 }
       );
     }
 
+    const user = result["rows"][0];
+
     return NextResponse.json(
-      { message: "Auto login successful", user: user[0], token },
+      { message: "Auto login successful", user: user, token },
       { status: 200 }
     );
   } catch (error) {
