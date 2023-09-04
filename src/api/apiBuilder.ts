@@ -13,7 +13,18 @@ export default class ApiBuilder implements Api {
     return ApiBuilder.instance;
   }
 
-  get<ReturnData>(path) {
+  public clearCache(path: string): void {
+    const desiredPath = path.match(/(\/api\/\w+)/)[0];
+
+    for (const key of this.cache.keys()) {
+      console.log(key, "key", desiredPath, key.includes(desiredPath));
+      if (key.includes(desiredPath)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  public get<ReturnData>(path) {
     return async (token: string = "", id?: number): Promise<ReturnData> => {
       const requestPath = `${path}${id ? `/${id}` : ""}`;
 
@@ -39,7 +50,7 @@ export default class ApiBuilder implements Api {
       }
     };
   }
-  post<requestDataType, ReturnData>(path) {
+  public post<requestDataType, ReturnData>(path) {
     return async (
       requestData: requestDataType,
       token: string = ""
@@ -59,15 +70,7 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        const inputString = path;
-        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
-
-        for (const key of this.cache.keys()) {
-          console.log(key, "key", desiredPath, key.includes(desiredPath));
-          if (key.includes(desiredPath)) {
-            this.cache.delete(key);
-          }
-        }
+        this.clearCache(path);
 
         const data = await response.json();
         return data;
@@ -76,7 +79,7 @@ export default class ApiBuilder implements Api {
       }
     };
   }
-  delete<requestDataType, ReturnData>(path) {
+  public delete<requestDataType, ReturnData>(path) {
     return async (
       requestData: requestDataType,
       token: string = "",
@@ -97,15 +100,7 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        const inputString = path;
-        const desiredPath = path.match(/(\/api\/\w+)/)[0];
-
-        for (const key of this.cache.keys()) {
-          console.log(key, "key", desiredPath, key.includes(desiredPath));
-          if (key.includes(desiredPath)) {
-            this.cache.delete(key);
-          }
-        }
+        this.clearCache(requestPath);
 
         const data = await response.json();
         return data;
@@ -114,7 +109,7 @@ export default class ApiBuilder implements Api {
       }
     };
   }
-  put<requestDataType, ReturnData>(path) {
+  public put<requestDataType, ReturnData>(path) {
     return async (
       requestData: requestDataType,
       token: string = "",
@@ -136,15 +131,7 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        const inputString = path;
-        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
-
-        for (const key of this.cache.keys()) {
-          console.log(key, "key", desiredPath, key.includes(desiredPath));
-          if (key.includes(desiredPath)) {
-            this.cache.delete(key);
-          }
-        }
+        this.clearCache(requestPath);
 
         const data = await response.json();
         return data;
