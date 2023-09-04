@@ -8,6 +8,7 @@ import {
   authError,
   registration,
   autoLogin,
+  clearProjectsStore,
 } from "store/reducers";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { LoginRequestType, UserModel } from "models";
@@ -53,6 +54,7 @@ function* registrationRequest(action) {
 
 function* clearTokenAndUser() {
   yield call(removeTokenFromLocalStorage);
+  yield put(clearProjectsStore());
   yield put(clearUser());
 }
 

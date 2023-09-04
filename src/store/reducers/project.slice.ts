@@ -41,6 +41,13 @@ const projectsSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
+    clearProjectsStore(state) {
+      state.projects = [];
+      state.projectWithTasks = null;
+      state.loading = false;
+      state.error = null;
+      state.successMessage = null;
+    },
     fetchProjectWithTasksSuccess(
       state,
       action: PayloadAction<FetchProjectWithTasksResponseType>
@@ -228,6 +235,7 @@ export const {
   deleteTaskRequest,
   deleteTaskSuccess,
   deleteTaskFailure,
+  clearProjectsStore,
 } = projectsSlice.actions;
 
 export default projectsSlice.reducer;
