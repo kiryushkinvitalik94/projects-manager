@@ -52,6 +52,7 @@ export default class ApiBuilder implements Api {
         }
 
         for (const key of this.cache.keys()) {
+          console.log(key, "key", path);
           if (key.includes(path)) {
             this.cache.delete(key);
           }
