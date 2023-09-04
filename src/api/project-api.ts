@@ -7,7 +7,7 @@ import {
   FetchProjectWithTasksResponseType,
 } from "models";
 
-const apiBuilder = new ApiBuilder();
+const apiBuilder = ApiBuilder.getInstance();
 
 export const addProject = apiBuilder.post<ProjectModel, AddProjectResponseType>(
   "/api/projects"

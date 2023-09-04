@@ -7,7 +7,7 @@ import {
   RegistrationResponseType,
 } from "models";
 
-const apiBuilder = new ApiBuilder();
+const apiBuilder = ApiBuilder.getInstance();
 
 export const getUsersHttpRequest = apiBuilder.get<UserModel[] | []>(
   "/api/users"

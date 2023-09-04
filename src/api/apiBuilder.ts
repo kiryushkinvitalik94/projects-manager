@@ -4,6 +4,14 @@ interface Api {
 
 export default class ApiBuilder implements Api {
   private cache: Map<string, any> = new Map();
+  private static instance: ApiBuilder | null = null;
+
+  static getInstance(): ApiBuilder {
+    if (!ApiBuilder.instance) {
+      ApiBuilder.instance = new ApiBuilder();
+    }
+    return ApiBuilder.instance;
+  }
 
   get<ReturnData>(path) {
     return async (token: string = "", id?: number): Promise<ReturnData> => {

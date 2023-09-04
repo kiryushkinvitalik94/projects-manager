@@ -8,7 +8,7 @@ import {
   UpdateTaskResponseType,
 } from "models";
 
-const apiBuilder = new ApiBuilder();
+const apiBuilder = ApiBuilder.getInstance();
 
 export const addTask = apiBuilder.post<AddTaskRequestType, AddTaskResponseType>(
   "/api/tasks"
