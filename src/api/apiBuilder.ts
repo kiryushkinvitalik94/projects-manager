@@ -98,7 +98,7 @@ export default class ApiBuilder implements Api {
         }
 
         const inputString = path;
-        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
+        const desiredPath = path.match(/(\/api\/\w+)/)[0];
 
         for (const key of this.cache.keys()) {
           console.log(key, "key", desiredPath, key.includes(desiredPath));
