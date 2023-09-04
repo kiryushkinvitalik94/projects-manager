@@ -17,7 +17,6 @@ const SecurePage: React.FC<SecurePagePropsTypes> = ({ children }) => {
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
 
   useLayoutEffect(() => {}, []);
 
@@ -32,17 +31,26 @@ const SecurePage: React.FC<SecurePagePropsTypes> = ({ children }) => {
       ) {
         await dispatch(autoLogin(token));
       } else {
-        if (!auth.isAuthenticated && pathname !== "/registration") {
+        if (
+          !auth.isAuthenticated &&
+          pathname !== "/registration" &&
+          !auth.loading
+        ) {
           router.push("/login");
         }
       }
-      setIsLoading(false);
     };
-    setIsLoading(true);
     initializeAuthentication();
-  }, [auth.isAuthenticated, dispatch, router, auth.isAutoLoggingIn, pathname]);
+  }, [
+    auth.isAuthenticated,
+    dispatch,
+    router,
+    auth.isAutoLoggingIn,
+    pathname,
+    auth.loading,
+  ]);
 
-  if (isLoading) {
+  if (auth.loading) {
     return <Loader />;
   }
 
