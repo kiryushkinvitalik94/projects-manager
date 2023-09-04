@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
 
-    const user = result["rows"];
+    const user = result["rows"][0];
 
     const storedPassword = user["password"];
 
