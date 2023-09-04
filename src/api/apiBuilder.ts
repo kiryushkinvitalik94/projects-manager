@@ -97,7 +97,15 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        this.cache.delete(requestPath);
+        const inputString = path;
+        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
+
+        for (const key of this.cache.keys()) {
+          console.log(key, "key", desiredPath, key.includes(desiredPath));
+          if (key.includes(desiredPath)) {
+            this.cache.delete(key);
+          }
+        }
 
         const data = await response.json();
         return data;
@@ -128,7 +136,15 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        this.cache.delete(requestPath);
+        const inputString = path;
+        const desiredPath = inputString.substring(0, path.indexOf("/", 2));
+
+        for (const key of this.cache.keys()) {
+          console.log(key, "key", desiredPath, key.includes(desiredPath));
+          if (key.includes(desiredPath)) {
+            this.cache.delete(key);
+          }
+        }
 
         const data = await response.json();
         return data;
