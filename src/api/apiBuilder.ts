@@ -59,9 +59,12 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
+        const inputString = path;
+        const desiredPath = inputString.substring(0, path.indexOf("/", 1));
+
         for (const key of this.cache.keys()) {
-          console.log(key, "key", path, key.includes(path));
-          if (key.includes(path)) {
+          console.log(key, "key", desiredPath, key.includes(desiredPath));
+          if (key.includes(desiredPath)) {
             this.cache.delete(key);
           }
         }
