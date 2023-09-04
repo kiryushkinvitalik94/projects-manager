@@ -164,12 +164,10 @@ export async function DELETE(
       );
     }
 
-    const deletedProject =
+    const resultdeletedTasks =
       await sql`DELETE FROM tasks WHERE project_id = ${projectId} AND user_id = ${decodedToken.userId}`;
 
-    console.log(deletedProject, "deletedProject");
-
-    if (deletedProject) {
+    if (resultdeletedTasks.rowCount === 0) {
       return NextResponse.json(
         {
           message:
