@@ -17,7 +17,6 @@ export default class ApiBuilder implements Api {
     const desiredPath = path.match(/(\/api\/\w+)/)[0];
 
     for (const key of this.cache.keys()) {
-      console.log(key, "key", desiredPath, key.includes(desiredPath));
       if (key.includes(desiredPath)) {
         this.cache.delete(key);
       }
