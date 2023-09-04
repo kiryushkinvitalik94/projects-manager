@@ -61,8 +61,11 @@ export async function PUT(
       );
     }
 
-    const getUpdatedTasksResult =
-      await sql`SELECT * FROM projects tasks.id = ${taskId} AND projects.user_id = ${decodedToken.userId}`;
+    const getUpdatedTasksResult = await sql`
+  SELECT *
+  FROM tasks
+  WHERE id = ${taskId} AND user_id = ${decodedToken.userId}
+`;
 
     return NextResponse.json(
       {
