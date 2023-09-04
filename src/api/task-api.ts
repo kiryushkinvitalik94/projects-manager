@@ -24,7 +24,7 @@ export const updateTask = apiBuilder.put<
 >("/api/tasks/projects/projectId/asks");
 
 export const deleteTask = apiBuilder.delete<TaskModel, DeleteTaskResponseType>(
-  "/api/tasks/projects/projectId/tasks"
+  "/api/projects/projectId/tasks"
 );
 
 const taskApi = { deleteTask, updateTask, fetchTasks, addTask };
