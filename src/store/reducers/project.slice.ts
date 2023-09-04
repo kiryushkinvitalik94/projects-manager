@@ -8,6 +8,7 @@ import {
   FetchProjectWithTasksResponseType,
   ProjectWithTasksModel,
   FetchTasksResponseType,
+  UpdateProjectResponseType,
   DeleteProjectsResponseType,
   AddTaskRequestType,
   AddTaskResponseType,
@@ -155,13 +156,17 @@ const projectsSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    updateProjectSuccess(state, action: PayloadAction<ProjectModel>) {
-      const updatedProject = action.payload;
+    updateProjectSuccess(
+      state,
+      action: PayloadAction<UpdateProjectResponseType>
+    ) {
+      const updatedProject = action.payload.project;
       state.projects = state.projects.map((project) =>
         project.id === updatedProject.id ? updatedProject : project
       );
       state.loading = false;
       state.error = null;
+      state.successMessage = action.payload.message;
     },
     updateProjectFailure(state, action: PayloadAction<string>) {
       state.loading = false;
