@@ -32,17 +32,17 @@ export async function POST(request: NextRequest) {
 
     const result =
       await sql`INSERT INTO tasks (user_id, project_id, title, description, status)
-      VALUES (${decodedToken.userId}, ${project_id}, ${title}, ${description}, ${status})
+      VALUES (${decodedToken.userId}, ${project_id}, ${title}, ${description}, ${status}) RETURNING id
       `;
 
-    if (!result) {
+    if (result.rowCount === 0) {
       return NextResponse.json(
         { message: "Failed to create a task" },
         { status: 500 }
       );
     }
 
-    const newTaskId = result[0]["insertId"];
+    const newTaskId = result.rows[0].id;
 
     const newTask = await sql`SELECT * FROM tasks WHERE id = ${newTaskId}`;
 

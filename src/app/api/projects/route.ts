@@ -36,14 +36,14 @@ export async function POST(request: NextRequest) {
 
     console.error(result, "created project result");
 
-    if (result.rowCount > 0) {
+    if (result.rowCount === 0) {
       return NextResponse.json(
         { message: "Failed to create a project" },
         { status: 500 }
       );
     }
 
-    const newProjectId = result[0]["insertId"];
+    const newProjectId = result.rows[0].id;
 
     const newProject =
       await sql`SELECT * FROM projects WHERE id = ${newProjectId}`;
