@@ -34,8 +34,6 @@ export async function POST(request: NextRequest) {
       VALUES (${decodedToken.userId}, ${name}, ${description})
       RETURNING id;`;
 
-    console.error(result, "created project result");
-
     if (result.rowCount === 0) {
       return NextResponse.json(
         { message: "Failed to create a project" },
