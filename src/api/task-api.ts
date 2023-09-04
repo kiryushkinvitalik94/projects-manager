@@ -21,7 +21,7 @@ export const fetchTasks = apiBuilder.get<TaskModel[]>(
 export const updateTask = apiBuilder.put<
   UpdateTaskRequestType,
   UpdateTaskResponseType
->("/api/tasks/projects/projectId/asks");
+>("/api/projects/projectId/tasks");
 
 export const deleteTask = apiBuilder.delete<TaskModel, DeleteTaskResponseType>(
   "/api/projects/projectId/tasks"
