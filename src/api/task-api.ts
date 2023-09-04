@@ -11,18 +11,20 @@ import {
 const apiBuilder = ApiBuilder.getInstance();
 
 export const addTask = apiBuilder.post<AddTaskRequestType, AddTaskResponseType>(
-  "/api/projects/tasks"
+  "/api/projects/projectId/tasks"
 );
 
-export const fetchTasks = apiBuilder.get<TaskModel[]>("/api/tasks");
+export const fetchTasks = apiBuilder.get<TaskModel[]>(
+  "/api/projects/projectId/tasks"
+);
 
 export const updateTask = apiBuilder.put<
   UpdateTaskRequestType,
   UpdateTaskResponseType
->("/api/tasks/projects/tasks");
+>("/api/tasks/projects/projectId/asks");
 
 export const deleteTask = apiBuilder.delete<TaskModel, DeleteTaskResponseType>(
-  "/api/tasks/projects/tasks"
+  "/api/tasks/projects/projectId/tasks"
 );
 
 const taskApi = { deleteTask, updateTask, fetchTasks, addTask };
