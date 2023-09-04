@@ -8,6 +8,11 @@ export default class ApiBuilder implements Api {
   get<ReturnData>(path) {
     return async (token: string = "", id?: number): Promise<ReturnData> => {
       const requestPath = `${path}${id ? `/${id}` : ""}`;
+
+      if (this.cache.has(requestPath)) {
+        return this.cache.get(requestPath);
+      }
+
       try {
         const response = await fetch(requestPath, {
           headers: {
@@ -46,7 +51,11 @@ export default class ApiBuilder implements Api {
           throw new Error(JSON.parse(error).message);
         }
 
-        this.cache.delete(path);
+        for (const key of this.cache.keys()) {
+          if (key.includes(path)) {
+            this.cache.delete(path);
+          }
+        }
 
         const data = await response.json();
         return data;
