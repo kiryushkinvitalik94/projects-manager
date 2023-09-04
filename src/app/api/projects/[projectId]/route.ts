@@ -118,10 +118,13 @@ export async function PUT(
       );
     }
 
+    const getUpdatedProjectResult =
+      await sql`SELECT * FROM projects WHERE id = ${projectId}`;
+
     return NextResponse.json(
       {
         message: "Project updated successfully",
-        project: updatedProjectResult.rows[0],
+        project: getUpdatedProjectResult.rows[0],
       },
       { status: 200 }
     );

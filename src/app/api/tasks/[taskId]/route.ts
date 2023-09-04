@@ -61,8 +61,14 @@ export async function PUT(
       );
     }
 
+    const getUpdatedTasksResult =
+      await sql`SELECT * FROM projects tasks.id = ${taskId} AND projects.user_id = ${decodedToken.userId}`;
+
     return NextResponse.json(
-      { message: "Task updated successfully", task: updatedTaskResult.rows[0] },
+      {
+        message: "Task updated successfully",
+        task: getUpdatedTasksResult.rows[0],
+      },
       { status: 200 }
     );
   } catch (error) {
