@@ -105,10 +105,10 @@ export async function PUT(
       );
     }
 
-    const result =
+    const updatedProjectResult =
       await sql`UPDATE projects SET name = ${name}, description = ${description} WHERE id = ${projectId} AND user_id = ${decodedToken.userId}`;
 
-    if (result) {
+    if (updatedProjectResult.rowCount === 0) {
       return NextResponse.json(
         {
           message:
@@ -118,13 +118,10 @@ export async function PUT(
       );
     }
 
-    const getUpdatedProjectResult =
-      await sql`SELECT * FROM projects WHERE id = ${projectId}`;
-
     return NextResponse.json(
       {
         message: "Project updated successfully",
-        project: getUpdatedProjectResult.rows[0],
+        project: updatedProjectResult.rows[0],
       },
       { status: 200 }
     );

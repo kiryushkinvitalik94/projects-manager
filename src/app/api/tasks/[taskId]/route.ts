@@ -38,34 +38,23 @@ export async function PUT(
       );
     }
 
-    const checkTaskOwnershipQuery = `
-      SELECT tasks.id
-      FROM tasks
-      INNER JOIN projects ON tasks.project_id = projects.id
-      WHERE tasks.id = ? AND projects.user_id = ?
-    `;
-
-    const taskOwnership = await sql`SELECT tasks.id
+    const getTaskResult = await sql`SELECT tasks.id
     FROM tasks
     INNER JOIN projects ON tasks.project_id = projects.id
     WHERE tasks.id = ${taskId} AND projects.user_id = ${decodedToken.userId}`;
 
-    if (!taskOwnership || taskOwnership["length"] === 0) {
+    if (getTaskResult.rowCount === 0) {
       return NextResponse.json(
         { message: "Task not found or you don't have permission to update it" },
         { status: 404 }
       );
     }
 
-    const result = await sql`UPDATE tasks
+    const updatedTaskResult = await sql`UPDATE tasks
     SET title = ${title}, description = ${description}, status = ${status}
     WHERE id = ${taskId}`;
 
-    const updatedTask = await sql`SELECT *
-      FROM tasks
-      WHERE id = ${taskId}`;
-
-    if (result["affectedRows"] === 0) {
+    if (updatedTaskResult.rowCount === 0) {
       return NextResponse.json(
         { message: "Task not found or you don't have permission to update it" },
         { status: 404 }
@@ -73,7 +62,7 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      { message: "Task updated successfully", task: updatedTask },
+      { message: "Task updated successfully", task: updatedTaskResult.rows[0] },
       { status: 200 }
     );
   } catch (error) {
@@ -120,9 +109,9 @@ export async function DELETE(
       );
     }
 
-    const result = await sql`DELETE FROM tasks WHERE id = ${taskId}`;
+    const deletedTaskResult = await sql`DELETE FROM tasks WHERE id = ${taskId}`;
 
-    if (result["affectedRows"] === 0) {
+    if (deletedTaskResult.rowCount === 0) {
       return NextResponse.json(
         { message: "Task not found or you don't have permission to delete it" },
         { status: 404 }
